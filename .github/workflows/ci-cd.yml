@@ -46,6 +46,6 @@ jobs:
           port: ${{ secrets.VPS_PORT || 22 }}
           script: |
             cd /opt/lunaria-open-tts
-            git pull origin main
+            git pull --ff-only origin main
             .venv/bin/pip install -r requirements.txt
             systemctl restart lunaria-open-tts
