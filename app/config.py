@@ -9,9 +9,13 @@ class VoiceConfig(BaseModel):
     voice_id: str
     name: str
     language: str = "pt-BR"
-    model_path: str
+    backend: str = "piper"
+    # Piper fields
+    model_path: Optional[str] = None
     config_path: Optional[str] = None
     speaker_id: Optional[int] = None
+    # Kokoro fields
+    kokoro_voice: Optional[str] = None
 
 
 class Settings(BaseSettings):
@@ -22,7 +26,7 @@ class Settings(BaseSettings):
         extra="ignore",
     )
 
-    tts_service_name: str = "Lunaria Open TTS"
+    tts_service_name: str = "Open Source TTS"
     tts_host: str = "0.0.0.0"
     tts_port: int = 8002
     piper_executable: str = "piper"

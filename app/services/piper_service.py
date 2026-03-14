@@ -9,9 +9,10 @@ from app.config import Settings, VoiceConfig
 
 
 class PiperService:
-    def __init__(self, settings: Settings):
+    def __init__(self, settings: Settings, voices: list = None):
         self.settings = settings
-        self.voice_map = {voice.voice_id: voice for voice in settings.piper_voices_json}
+        voice_list = voices if voices is not None else settings.piper_voices_json
+        self.voice_map = {voice.voice_id: voice for voice in voice_list}
 
     def list_voices(self):
         return [
@@ -70,7 +71,6 @@ class PiperService:
                 check=False,
                 env=os.environ.copy(),
             )
-
             if result.returncode != 0:
                 error_message = result.stderr.strip() or result.stdout.strip() or "Falha ao executar Piper"
                 raise HTTPException(status_code=500, detail=error_message)
