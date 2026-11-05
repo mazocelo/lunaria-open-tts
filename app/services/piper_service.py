@@ -9,7 +9,7 @@ from app.config import Settings, VoiceConfig
 
 
 class PiperService:
-    def __init__(self, settings: Settings, voices: list = None):
+    def __init__(self, settings: Settings, voices: list | None = None):
         self.settings = settings
         voice_list = voices if voices is not None else settings.piper_voices_json
         self.voice_map = {voice.voice_id: voice for voice in voice_list}

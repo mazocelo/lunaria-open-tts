@@ -1,5 +1,4 @@
 from functools import lru_cache
-from typing import List, Optional
 
 from pydantic import BaseModel, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -11,11 +10,11 @@ class VoiceConfig(BaseModel):
     language: str = "pt-BR"
     backend: str = "piper"
     # Piper fields
-    model_path: Optional[str] = None
-    config_path: Optional[str] = None
-    speaker_id: Optional[int] = None
+    model_path: str | None = None
+    config_path: str | None = None
+    speaker_id: int | None = None
     # Kokoro fields
-    kokoro_voice: Optional[str] = None
+    kokoro_voice: str | None = None
 
 
 class Settings(BaseSettings):
@@ -30,9 +29,9 @@ class Settings(BaseSettings):
     tts_host: str = "0.0.0.0"
     tts_port: int = 8002
     piper_executable: str = "piper"
-    tts_default_voice_id: Optional[str] = None
+    tts_default_voice_id: str | None = None
     piper_output_sample_rate: int = 22050
-    piper_voices_json: List[VoiceConfig] = Field(default_factory=list)
+    piper_voices_json: list[VoiceConfig] = Field(default_factory=list)
     # Kokoro: synthesize a short phrase per voice at startup, so the first request is fast
     kokoro_warmup: bool = True
 

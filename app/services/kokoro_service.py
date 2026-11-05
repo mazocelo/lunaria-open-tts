@@ -3,7 +3,6 @@ import ctypes.util
 import io
 import logging
 import threading
-from typing import List
 
 import numpy as np
 from fastapi import HTTPException
@@ -31,7 +30,7 @@ def release_freed_memory():
 
 
 class KokoroService:
-    def __init__(self, voices: List[VoiceConfig]):
+    def __init__(self, voices: list[VoiceConfig]):
         self.voice_map = {v.voice_id: v for v in voices}
         self._pipelines: dict = {}
         # The warm-up thread and the first request must not load the model twice.
@@ -78,7 +77,7 @@ class KokoroService:
                 if audio is not None:
                     chunks.append(audio)
         except Exception as e:
-            raise HTTPException(status_code=500, detail=f"Kokoro erro: {e}")
+            raise HTTPException(status_code=500, detail=f"Kokoro erro: {e}") from e
         finally:
             release_freed_memory()
 

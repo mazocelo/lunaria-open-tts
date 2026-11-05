@@ -5,8 +5,8 @@ from fastapi.responses import Response
 
 from app.config import get_settings
 from app.models import GenerateSpeechRequest, HealthResponse
-from app.services.piper_service import PiperService
 from app.services.kokoro_service import KokoroService
+from app.services.piper_service import PiperService
 
 settings = get_settings()
 
