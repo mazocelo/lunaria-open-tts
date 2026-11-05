@@ -1,3 +1,5 @@
+import ctypes
+import ctypes.util
 import io
 from typing import List
 
@@ -7,6 +9,20 @@ from fastapi import HTTPException
 from app.config import VoiceConfig
 
 KOKORO_SAMPLE_RATE = 24000
+
+try:
+    _libc = ctypes.CDLL(ctypes.util.find_library("c") or "libc.so.6")
+    _malloc_trim = _libc.malloc_trim
+except (OSError, AttributeError):
+    _malloc_trim = None
+
+
+def release_freed_memory():
+    # A synthesis of ~13 s of audio allocates about 1 GB of intermediate tensors. Once freed,
+    # glibc keeps that memory in its arenas (one per threadpool thread), so RSS only grows.
+    # malloc_trim hands the free pages back to the OS (~20 ms).
+    if _malloc_trim is not None:
+        _malloc_trim(0)
 
 
 class KokoroService:
@@ -47,6 +63,8 @@ class KokoroService:
                     chunks.append(audio)
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Kokoro erro: {e}")
+        finally:
+            release_freed_memory()
 
         if not chunks:
             raise HTTPException(status_code=500, detail="Kokoro nao gerou audio")
