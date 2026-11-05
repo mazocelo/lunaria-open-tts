@@ -33,6 +33,8 @@ class Settings(BaseSettings):
     tts_default_voice_id: Optional[str] = None
     piper_output_sample_rate: int = 22050
     piper_voices_json: List[VoiceConfig] = Field(default_factory=list)
+    # Kokoro: synthesize a short phrase per voice at startup, so the first request is fast
+    kokoro_warmup: bool = True
 
 
 @lru_cache

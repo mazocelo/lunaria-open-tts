@@ -14,7 +14,7 @@ You send text and a voice id, and you get back a WAV file. It is the default TTS
 
 - Voices are declared in `.env` as a JSON list (`PIPER_VOICES_JSON`). Each entry picks a backend: `piper` or `kokoro`.
 - **Piper**: each request starts one `piper` process. It writes a temporary WAV file, which is read back and deleted.
-- **Kokoro**: the pipeline for Portuguese (`lang_code="p"`) is loaded on the first request and then stays in memory. The audio chunks are joined and written as a 24 kHz WAV.
+- **Kokoro**: at startup, a background thread loads the pipeline for Portuguese (`lang_code="p"`) and synthesizes a short phrase with each configured voice, so the first request is not slow (`KOKORO_WARMUP=false` turns this off, and the pipeline is then loaded on the first request). The pipeline stays in memory. The audio chunks are joined and written as a 24 kHz WAV. After each synthesis, the freed memory is handed back to the OS (`malloc_trim`).
 - No GPU and no paid API. At synthesis time everything runs locally. Kokoro downloads its weights from the Hugging Face Hub on first use and reads them from the local cache after that.
 
 ## Voices
@@ -94,7 +94,7 @@ On Windows, `scripts/start.ps1` starts uvicorn with `--reload`.
 
 **Piper voices.** Download a Piper release binary from [rhasspy/piper](https://github.com/rhasspy/piper/releases). Then download each voice's `.onnx` and `.onnx.json` files from [rhasspy/piper-voices](https://huggingface.co/rhasspy/piper-voices/tree/main/pt/pt_BR).
 
-**Kokoro voices.** No manual download. The weights (`hexgrad/Kokoro-82M`, about 330 MB with three voices) are fetched into the Hugging Face cache on the first Kokoro request.
+**Kokoro voices.** No manual download. The weights (`hexgrad/Kokoro-82M`, about 330 MB with three voices) are fetched into the Hugging Face cache the first time the service starts (or on the first Kokoro request, with `KOKORO_WARMUP=false`).
 
 Example `.env`:
 

@@ -1,3 +1,5 @@
+import threading
+
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import Response
 
@@ -17,6 +19,13 @@ kokoro_service = KokoroService(_kokoro_voices)
 _all_voice_map = {v.voice_id: v for v in settings.piper_voices_json}
 
 app = FastAPI(title=settings.tts_service_name, version="2.0.0")
+
+
+@app.on_event("startup")
+def warmup_kokoro():
+    # In the background, so /health answers right away; a request that arrives first waits for the model load.
+    if settings.kokoro_warmup and _kokoro_voices:
+        threading.Thread(target=kokoro_service.warmup, name="kokoro-warmup", daemon=True).start()
 
 
 @app.get("/health", response_model=HealthResponse)
